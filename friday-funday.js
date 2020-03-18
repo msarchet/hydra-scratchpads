@@ -1,0 +1,15 @@
+
+gradient( () => (fftMovingAvgs[3].deltaAvg / fftMovingAvgs[3].avg) * .0008 + .0002)
+.mult(osc(12, .2, .2), () => fftMovingAvgs[0].deltaAvg + .1)
+.blend(shape(3).modulateRotate(gradient(120, .2, .2), () => fftMovingAvgs[5].last * 50 + 1, () => fftMovingAvgs[3].deltaAvg * 5 + 1), () =>fftMovingAvgs[3].avg / 10 + .5)
+.rotate(() => fftMovingAvgs[0].max + .1, .002)
+.add(src(o0).scrollX(.01, 0))
+.scale(1.1)
+.out(o0)
+
+gradient(() => fftMovingAvgs[0].ratio / fftMovingAvgs[3].ratio * .001 + .001)
+.mask(o0)
+.add(o0, 1.2)
+.blend(o0, () => fftMovingAvgs[3].ratio / 100 + .01)
+.blend(src(o1).scrollX(.1, .1), .3)
+.out(o1)

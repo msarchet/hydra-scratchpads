@@ -1,0 +1,35 @@
+// by Michael Sarchet
+// @msarchet
+bounceChannel = () => a.fft[5] * .001
+
+bounceChannelUpdates = () => bounceChannel()
+bpm(120)
+
+voronoi(13, bounceChannelUpdates, getFFT(0))
+.blend(osc(1, 0, .1), ()=> a.fft[0] * .3 + a.fft[3] * .05 + a.fft[1] * .1)
+.modulate(noise(() => Math.max(.1, a.fft[2]) * 0.01), .1)
+.kaleid(() => (3 + (1 * a.fft[0])) | 0)
+.blend(solid(1, 0, 0, 0), .2)
+.out(o0)
+
+src(o0).blend(voronoi(13, () => a.fft[2] * .01, 3), () => a.fft[0] * .1 + .9).add(o0).mask(o0).out(o1)
+
+src(o0).modulate(osc(13, () => a.fft[2] * .1, .0), () => a.fft[0] * .1 + .9).add(o0).mask(o0).out(o1)
+
+shape(3).scale(() => .8 + a.fft[2] * .2)
+.modulateRotate(gradient(.1, .1, .1, getFFT(4)), getFFT(0), getFFT(1))
+.brightness(.3)
+.contrast(() => a.fft[2])
+.mult(o1)
+.mask(o1)
+.out(o2)
+
+voronoi(() => a.fft[3] * .1 + 2, 4,.3)
+.luma(() => .2 - a.fft[0])
+ .modulateRotate(osc(() => a.fft[1] * 12, 0, .1), getFFT(5), 0)
+ .colorama(() => a.fft[5] * 3)
+ .mask(o2)
+ .out(o3)
+
+a.detectBeat()
+ render(o3)
