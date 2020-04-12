@@ -103,16 +103,15 @@ a.show()
     let noteStorage = getNote(channel, note)
     noteStorage.on = noteOn
     noteStorage.velocity = velocity
-    channelStorage.notes[note] = noteStorage
+    midiStorage.channels[channel].notes[note] = noteStorage
     if (noteOn)
     {
-      noteStorage.onNote.map(f => f(noteStorage))
+      noteStorage.onNote.map(f => f.cb && f.cb(noteStorage))
     }
     else
     {
-      noteStorage.offNote.map(f => f(noteStorage))
+      noteStorage.offNote.map(f => f.cb && f.cb(noteStorage))
     }
-    console.log(channelStorage)
   }
   //
 })()
@@ -137,21 +136,35 @@ function onMIDISuccess(midiAccess) {
 }
 function onMIDIFailure() { console.error('midi failed')}
 
-window.createMidiButton = (channel, note, on, off) => {
+window.createMidiButton = (id, channel, note, on, off) => {
   let localState = false;
   let noteStorage = getNote(channel, note)
-  noteStorage.onNote.push(() => {
-    if (localState)
-    {
-        localState = false
-        off && off()
-    }
-    else
-    {
-      localState = true
-      on && on()
-    }
+  noteStorage.onNote.push(
+    { id,
+      cb:  () =>
+      {
+        if (localState)
+        {
+            localState = false
+            off && off()
+        }
+        else
+        {
+          localState = true
+          on && on()
+        }
+      }
   })
+  return () => {
+    for (var i = 0; i < noteStorage.onNote.length; i++)
+    {
+      if (noteStorage.onNote[i].id == id)
+      {
+          break
+      }
+    }
+    noteStorage.onNote.splice(i, 1)
+  }
 }
 
 (()=>  {
